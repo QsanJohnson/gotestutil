@@ -1,0 +1,17 @@
+github.com/QsanJohnson/goiscsi v0.0.0-20221104084900-a3018ed200aa h1:W7C4ISKo0gJYOGLeVzFWmpeJ37d+3fSsSU0Mr3M3tjo=
+github.com/QsanJohnson/goiscsi v0.0.0-20221104084900-a3018ed200aa/go.mod h1:xEiJTruEWPPSRHh6+kOPaSn18AyjMY4iICYsv3p4oQs=
+github.com/QsanJohnson/goiscsi v0.0.0-20221108055715-70ea299acc45 h1:vAvBDtHdKhn8FVLAbHvIZvorGkzPs9dXiWHyGq+ekhs=
+github.com/QsanJohnson/goiscsi v0.0.0-20221108055715-70ea299acc45/go.mod h1:xEiJTruEWPPSRHh6+kOPaSn18AyjMY4iICYsv3p4oQs=
+github.com/QsanJohnson/goqsan v0.0.0-20221104055742-3bc970a88945 h1:5CaVePSRWxD3xfr/S7WLj7bKYeDuEccVoG0n+NPSFrg=
+github.com/QsanJohnson/goqsan v0.0.0-20221104055742-3bc970a88945/go.mod h1:UAzQj4mGPmSqwzshjSLh37/k9neZ9Hmv76TF/JH/lIA=
+github.com/QsanJohnson/goqsan v0.0.0-20221108090023-32888c1a694e h1:/XTEVML9OOrNLVUodo/GXPJA8aoCqf3jcZQci5rGTqk=
+github.com/QsanJohnson/goqsan v0.0.0-20221108090023-32888c1a694e/go.mod h1:UAzQj4mGPmSqwzshjSLh37/k9neZ9Hmv76TF/JH/lIA=
+github.com/go-logr/logr v0.1.0/go.mod h1:ixOQHD9gLJUVQQ2ZOR7zLEifBX6tGkNJF4QyIY7sIas=
+github.com/go-logr/logr v1.2.0 h1:QK40JKJyMdUDz+h+xvCsru/bJhvG0UxvePV0ufL/AcE=
+github.com/go-logr/logr v1.2.0/go.mod h1:jdQByPbusPIv2/zmleS9BjJVeZ6kBagPoEUsqbVz/1A=
+github.com/golang/glog v1.0.0 h1:nfP3RFugxnNRyKgeWd4oI1nYvXpxrx8ck8ZrcizshdQ=
+github.com/golang/glog v1.0.0/go.mod h1:EWib/APOK0SL3dFbYqvxE3UYd8E6s1ouQ7iEp/0LWV4=
+k8s.io/klog v1.0.0 h1:Pt+yjF5aB1xDSVbau4VsWe+dQNzA0qv1LlXdC2dF6Q8=
+k8s.io/klog v1.0.0/go.mod h1:4Bi6QPql/J/LkTDqv7R/cd3hPo4k2DG6Ptcz060Ez5I=
+k8s.io/klog/v2 v2.80.1 h1:atnLQ121W371wYYFawwYx1aEY2eUfs4l3J72wtgAwV4=
+k8s.io/klog/v2 v2.80.1/go.mod h1:y1WjHnz7Dj687irZUWR/WLkLc5N1YHtjLdmgWjndZn0=
