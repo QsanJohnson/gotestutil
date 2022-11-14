@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gotestutil/worker"
+	"math/rand"
 	"strconv"
 	"sync"
 	"time"
@@ -75,13 +76,13 @@ func testRefreshToken(ctx context.Context, jobName string, t *worker.TestTargetC
 			return fmt.Errorf("CreateVolume failed: %v\n", err)
 		}
 		fmt.Printf("Job(%s):CreateVolume: vol(%+v)\n", jobName, vol)
-		time.Sleep(20 * time.Second)
+		time.Sleep(10 * time.Second)
 
 		err = volumeAPI.DeleteVolume(ctx, vol.ID)
 		if err != nil {
 			return fmt.Errorf("DeleteVolume failed: %v\n", err)
 		}
-		fmt.Printf("Job(%s):DeleteVolume: volId(%s)\n", jobName, vol.ID)
+		fmt.Printf("Job(%s):DeleteVolume: volId(%s)\n\n", jobName, vol.ID)
 		time.Sleep(120 * time.Second)
 	}
 
@@ -189,6 +190,10 @@ func testAttachLun(ctx context.Context, jobName string, t *worker.TestTargetClie
 func testIscsiIO(ctx context.Context, jobName string, t *worker.TestTargetClient) error {
 	fmt.Printf("Job(%s) Enter\n", jobName)
 
+	if !isRoot() {
+		return fmt.Errorf("Please use root account to execute this test!\n")
+	}
+
 	volumeAPI := t.GetVolumeAPI()
 	targetAPI := t.GetTargetAPI()
 
@@ -202,74 +207,89 @@ func testIscsiIO(ctx context.Context, jobName string, t *worker.TestTargetClient
 		Portal: t.IscsiTgt.Portal,
 		Name:   t.IscsiTgt.Iqn,
 	}
-	tgts := []*goiscsi.Target{&tgt}
+	// tgts := []*goiscsi.Target{&tgt}
 
 	var wg sync.WaitGroup
-	nProcs := 1
-	for i := 1; i <= nProcs; i++ {
-		wg.Add(1)
-		jobNameR := fmt.Sprintf("%s-%d", jobName, i)
+	for cnt := 1; cnt <= 1000; cnt++ {
+		nProcs := 1
+		for i := 1; i <= nProcs; i++ {
+			wg.Add(1)
+			jobNameR := fmt.Sprintf("%s-%d-%d", jobName, cnt, i)
 
-		go func() {
-			defer wg.Done()
+			go func() {
+				defer wg.Done()
 
-			volName := genTmpVolumeName()
-			fmt.Printf("Job(%s): start (volName=%s)\n", jobNameR, volName)
+				volName := genTmpVolumeName()
+				// volSize := defVolSize
+				volSize := uint64(rand.Intn(20) * 1024)
+				if volSize == 0 {
+					volSize = defVolSize
+				}
+				fmt.Printf("Job(%s): start (volName=%s, volSize=%d)\n", jobNameR, volName, volSize)
 
-			opt := defVolOptions
-			vol, err := volumeAPI.CreateVolume(ctx, t.PoolId, volName, defVolSize, &opt)
-			if err != nil {
-				panic(fmt.Sprintf("CreateVolume failed: %v\n", err))
-			}
-			fmt.Printf("Job(%s):CreateVolume: vol(%+v)\n", jobNameR, vol)
+				opt := defVolOptions
+				vol, err := volumeAPI.CreateVolume(ctx, t.PoolId, volName, volSize, &opt)
+				if err != nil {
+					panic(fmt.Sprintf("CreateVolume failed: %v\n", err))
+				}
+				fmt.Printf("Job(%s):CreateVolume: vol(%+v)\n", jobNameR, vol)
 
-			param := defMLunParam
-			lun, err := targetAPI.MapLun(ctx, tgtID, vol.ID, &param)
-			if err != nil {
-				panic(fmt.Sprintf("MapLun failed: %v\n", err))
-			}
-			fmt.Printf("Job(%s):MapLun: Lun(%+v)\n", jobNameR, lun)
+				param := defMLunParam
+				lun, err := targetAPI.MapLun(ctx, tgtID, vol.ID, &param)
+				if err != nil {
+					panic(fmt.Sprintf("MapLun failed: %v\n", err))
+				}
+				fmt.Printf("Job(%s):MapLun: Lun(%+v)\n", jobNameR, lun)
 
-			lunNum, _ := strconv.ParseUint(lun.Name, 10, 32)
-			newTgt := tgt
-			newTgt.Lun = lunNum
-			lunTgts := []*goiscsi.Target{&newTgt}
-			err = iscsiUtil.Login(lunTgts)
-			fmt.Printf("Job(%s):iSCSI Login: \n", jobNameR)
+				lunNum, _ := strconv.ParseUint(lun.Name, 10, 32)
+				newTgt := tgt
+				newTgt.Lun = lunNum
+				lunTgts := []*goiscsi.Target{&newTgt}
+				err = iscsiUtil.Login(lunTgts)
+				fmt.Printf("Job(%s):iSCSI Login: \n", jobNameR)
 
-			disk, err := iscsiUtil.GetDisk(lunTgts)
-			if err != nil {
-				panic(fmt.Sprintf("TestGetDiskPath failed: %v", err))
-			}
-			fmt.Printf("Job(%s):GetDisk: %+v\n", jobNameR, disk)
-			for name, dev := range disk.Devices {
-				fmt.Printf("  %s: %+v\n", name, dev)
-			}
-			if !disk.Valid {
-				panic(fmt.Sprintf("iSCSI disk not found !!\n"))
-			}
+				disk, err := iscsiUtil.GetDisk(lunTgts)
+				if err != nil {
+					panic(fmt.Sprintf("TestGetDiskPath failed: %v", err))
+				}
+				fmt.Printf("Job(%s):GetDisk: %+v\n", jobNameR, disk)
+				for name, dev := range disk.Devices {
+					fmt.Printf("  %s: %+v\n", name, dev)
+				}
+				if !disk.Valid {
+					panic(fmt.Sprintf("iSCSI disk not found !!\n"))
+				}
 
-			err = targetAPI.UnmapLun(ctx, tgtID, lun.ID)
-			if err != nil {
-				panic(fmt.Sprintf("UnmapLun failed: %v\n", err))
-			}
-			fmt.Printf("Job(%s):UnmapLun: tgtID(%s) lunID(%s)\n", jobNameR, tgtID, lun.ID)
+				time.Sleep(5 * time.Second)
+				err = iscsiUtil.Logout(lunTgts)
+				if err != nil {
+					panic(fmt.Sprintf("Logout failed: %v\n", err))
+				}
+				fmt.Printf("Job(%s):iSCSI Logout: \n", jobName)
 
-			err = volumeAPI.DeleteVolume(ctx, vol.ID)
-			if err != nil {
-				panic(fmt.Sprintf("DeleteVolume failed: %v\n", err))
-			}
-			fmt.Printf("Job(%s):DeleteVolume: volId(%s)\n", jobNameR, vol.ID)
-		}()
+				err = targetAPI.UnmapLun(ctx, tgtID, lun.ID)
+				if err != nil {
+					panic(fmt.Sprintf("UnmapLun failed: %v\n", err))
+				}
+				fmt.Printf("Job(%s):UnmapLun: tgtID(%s) lunID(%s)\n", jobNameR, tgtID, lun.ID)
+
+				err = volumeAPI.DeleteVolume(ctx, vol.ID)
+				if err != nil {
+					panic(fmt.Sprintf("DeleteVolume failed: %v\n", err))
+				}
+				fmt.Printf("Job(%s):DeleteVolume: volId(%s)\n\n", jobNameR, vol.ID)
+				time.Sleep(3 * time.Second)
+			}()
+		}
+
+		wg.Wait()
 	}
 
-	wg.Wait()
-
-	err = iscsiUtil.Logout(tgts)
-	if err != nil {
-		return fmt.Errorf("Logout failed: %v\n", err)
-	}
-	fmt.Printf("Job(%s):iSCSI Logout: \n", jobName)
+	// err = iscsiUtil.Logout(tgts)
+	// if err != nil {
+	// 	return fmt.Errorf("Logout failed: %v\n", err)
+	// }
+	// fmt.Printf("Job(%s):iSCSI Logout: \n", jobName)
 
 	fmt.Printf("Job(%s) Leave\n", jobName)
 	return nil

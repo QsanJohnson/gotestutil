@@ -3,8 +3,8 @@ module gotestutil
 go 1.18
 
 require (
-	github.com/QsanJohnson/goiscsi v0.0.0-20221108055715-70ea299acc45
-	github.com/QsanJohnson/goqsan v0.0.0-20221108090023-32888c1a694e
+	github.com/QsanJohnson/goiscsi v0.0.0-20221114054652-0b15cbf5de23
+	github.com/QsanJohnson/goqsan v0.0.0-20221114013342-cec35ff22684
 )
 
 require (

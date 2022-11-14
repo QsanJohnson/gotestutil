@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"os/user"
 	"strings"
 	"time"
 
@@ -43,4 +44,13 @@ func getTargetIDByIqn(ctx context.Context, authClient *goqsan.AuthClient, iscsiT
 	}
 
 	return "", fmt.Errorf("Target %v is not found", iscsiTargets)
+}
+
+func isRoot() bool {
+	currentUser, err := user.Current()
+	if err != nil {
+		fmt.Errorf("[isRoot] Failed to get current user: %s", err)
+	}
+
+	return currentUser.Username == "root"
 }

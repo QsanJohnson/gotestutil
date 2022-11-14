@@ -2,10 +2,14 @@ github.com/QsanJohnson/goiscsi v0.0.0-20221104084900-a3018ed200aa h1:W7C4ISKo0gJ
 github.com/QsanJohnson/goiscsi v0.0.0-20221104084900-a3018ed200aa/go.mod h1:xEiJTruEWPPSRHh6+kOPaSn18AyjMY4iICYsv3p4oQs=
 github.com/QsanJohnson/goiscsi v0.0.0-20221108055715-70ea299acc45 h1:vAvBDtHdKhn8FVLAbHvIZvorGkzPs9dXiWHyGq+ekhs=
 github.com/QsanJohnson/goiscsi v0.0.0-20221108055715-70ea299acc45/go.mod h1:xEiJTruEWPPSRHh6+kOPaSn18AyjMY4iICYsv3p4oQs=
+github.com/QsanJohnson/goiscsi v0.0.0-20221114054652-0b15cbf5de23 h1:8SjJgQOtVRdFk2PyPphzd2icHdrdfUeQ1MaqSwRZHBQ=
+github.com/QsanJohnson/goiscsi v0.0.0-20221114054652-0b15cbf5de23/go.mod h1:xEiJTruEWPPSRHh6+kOPaSn18AyjMY4iICYsv3p4oQs=
 github.com/QsanJohnson/goqsan v0.0.0-20221104055742-3bc970a88945 h1:5CaVePSRWxD3xfr/S7WLj7bKYeDuEccVoG0n+NPSFrg=
 github.com/QsanJohnson/goqsan v0.0.0-20221104055742-3bc970a88945/go.mod h1:UAzQj4mGPmSqwzshjSLh37/k9neZ9Hmv76TF/JH/lIA=
 github.com/QsanJohnson/goqsan v0.0.0-20221108090023-32888c1a694e h1:/XTEVML9OOrNLVUodo/GXPJA8aoCqf3jcZQci5rGTqk=
 github.com/QsanJohnson/goqsan v0.0.0-20221108090023-32888c1a694e/go.mod h1:UAzQj4mGPmSqwzshjSLh37/k9neZ9Hmv76TF/JH/lIA=
+github.com/QsanJohnson/goqsan v0.0.0-20221114013342-cec35ff22684 h1:lDYx+hx8+MgxDXtoKuzUhXZOAyu2aDtsOWuDMc1DAns=
+github.com/QsanJohnson/goqsan v0.0.0-20221114013342-cec35ff22684/go.mod h1:UAzQj4mGPmSqwzshjSLh37/k9neZ9Hmv76TF/JH/lIA=
 github.com/go-logr/logr v0.1.0/go.mod h1:ixOQHD9gLJUVQQ2ZOR7zLEifBX6tGkNJF4QyIY7sIas=
 github.com/go-logr/logr v1.2.0 h1:QK40JKJyMdUDz+h+xvCsru/bJhvG0UxvePV0ufL/AcE=
 github.com/go-logr/logr v1.2.0/go.mod h1:jdQByPbusPIv2/zmleS9BjJVeZ6kBagPoEUsqbVz/1A=
