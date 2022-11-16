@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"os"
 	"os/user"
 	"strings"
 	"time"
@@ -53,4 +54,38 @@ func isRoot() bool {
 	}
 
 	return currentUser.Username == "root"
+}
+
+func writeDeviceFile(devFile, content string) error {
+	f, err := os.OpenFile(devFile, os.O_WRONLY, 0200)
+	if err != nil {
+		return err
+	}
+
+	defer f.Close()
+	if _, err := f.WriteString(content); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func OfflineDevice(dev string) error {
+	if strings.HasPrefix(dev, "/dev/") {
+		devName := dev[5:]
+		devFile := fmt.Sprintf("/sys/block/%s/device/state", devName)
+		return writeDeviceFile(devFile, "offline")
+	} else {
+		return fmt.Errorf("[offlineDevice] invalid dev path: %s\n", dev)
+	}
+}
+
+func RemoveDevice(dev string) error {
+	if strings.HasPrefix(dev, "/dev/") {
+		devName := dev[5:]
+		devFile := fmt.Sprintf("/sys/block/%s/device/delete", devName)
+		return writeDeviceFile(devFile, "1")
+	} else {
+		return fmt.Errorf("[removeDevice] invalid dev path: %s\n", dev)
+	}
 }
