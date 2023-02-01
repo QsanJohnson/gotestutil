@@ -531,3 +531,63 @@ func testIscsiIO2(ctx context.Context, jobName string, t *worker.TestTargetClien
 	fmt.Printf("Job(%s) Leave\n", jobName)
 	return nil
 }
+
+func testAttachLunLimit(ctx context.Context, jobName string, t *worker.TestTargetClient) error {
+	fmt.Printf("Job(%s) Enter\n", jobName)
+
+	volumeAPI := t.GetVolumeAPI()
+	targetAPI := t.GetTargetAPI()
+
+	tgtID, err := getTargetIDByIqn(ctx, t.GetAuthClient(), t.IscsiTgt.Iqn)
+	if err != nil {
+		return fmt.Errorf("getTargetIDByIqn failed: %v\n", err)
+	}
+
+	limit := 64
+	var lunIds, volIds []string
+	prefixVolName := genTmpVolumeName()
+	for i := 1; i <= limit; i++ {
+		jobNameR := fmt.Sprintf("%s-%d", jobName, i)
+		fmt.Printf("Job(%s): start (prefixVolName=%s)\n", jobNameR, prefixVolName)
+
+		volName := fmt.Sprintf("%s-%d", prefixVolName, i)
+		opt := defVolOptions
+		vol, err := volumeAPI.CreateVolume(ctx, t.PoolId, volName, defVolSize, &opt)
+		if err != nil {
+			panic(fmt.Sprintf("CreateVolume failed: %v\n", err))
+		}
+		fmt.Printf("Job(%s):CreateVolume: %s with ID %s\n", jobNameR, vol.Name, vol.ID)
+		volIds = append(volIds, vol.ID)
+
+		param := defMLunParam
+		lun, err := targetAPI.MapLun(ctx, tgtID, vol.ID, &param)
+		if err != nil {
+			panic(fmt.Sprintf("MapLun failed: %v\n", err))
+		}
+		fmt.Printf("Job(%s):MapLun: Lun(%+v)\n", jobNameR, lun)
+		lunIds = append(lunIds, lun.ID)
+	}
+
+	fmt.Printf("Totally created %d volumes, %d luns\n", len(volIds), len(lunIds))
+	fmt.Printf("Sleep 30 second... then start cleanup\n")
+	time.Sleep(30 * time.Second)
+
+	fmt.Printf("Start unmap %d luns ...\n", len(lunIds))
+	for _, lunId := range lunIds {
+		err = targetAPI.UnmapLun(ctx, tgtID, lunId)
+		if err != nil {
+			panic(fmt.Sprintf("UnmapLun failed: %v\n", err))
+		}
+	}
+
+	fmt.Printf("Start delete %d volumes ...\n", len(volIds))
+	for _, volId := range volIds {
+		err = volumeAPI.DeleteVolume(ctx, volId)
+		if err != nil {
+			panic(fmt.Sprintf("DeleteVolume failed: %v\n", err))
+		}
+	}
+
+	fmt.Printf("Job(%s) Leave\n", jobName)
+	return nil
+}
